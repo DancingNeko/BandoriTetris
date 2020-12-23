@@ -51,24 +51,26 @@ private:
     bool hhwSelected = false;
     bool ppSelected = false;
     bool rSelected = false;
-    bool pieceAdded = false;
+    bool pieceAdded = true;
     bool selectingBand = false;
 
-    //condition
+    //status
     long long timeElapsed = 0;
     bool keyPressed = false;//if it's first time of key press
     bool bandSelected = false;
     bool start = false;//if all settings finished and game starts
     int pieceCount = 0;
+    int bottomY = 7;
     int* map = NULL;
 
     void startGame();
     titres *game = NULL;
     QList<Piece*> allPieces;//store all the pieces' info.
+    void recordPuzzle();//record puzzle when it reached bottom
+    int checkBottom(int*, int dir,int X);//check bottomY and update, X: column
 
     //set piece
     void addPiece();
-
     QLabel test1;
 
 

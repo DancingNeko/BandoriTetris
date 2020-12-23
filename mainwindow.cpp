@@ -51,7 +51,7 @@ MainWindow::~MainWindow()
 //system
 void MainWindow::onTimeout()
 {
-    timeElapsed += (int)(1 + 1 * pieceCount);
+    timeElapsed += (int)(1 + 0 * pieceCount);
     if(!keyPressed)//animate the label
     {
         if((timeElapsed/100)%2 == 0)
@@ -61,20 +61,16 @@ void MainWindow::onTimeout()
     }
     if(start)
     {
-        if(timeElapsed + (int)(1 + 1 * pieceCount) >= 1070) //if next frame will be over 1070
-        {
-            allPieces.last()->updatePos(720);
-            allPieces.last()->image.show();
-            addPiece();
-        }
         if(pieceAdded)//reset time elapsed
         {
             timeElapsed = 0;
             pieceAdded = false;
         }
-      allPieces.last()->updatePos(timeElapsed-350);
-
-      cout<< allPieces.last()->X <<endl;
+        if(timeElapsed + (int)(1 + 0 * pieceCount) >= 1000 - 260 * (7 - bottomY)) //if next frame will be over 1070
+        {
+            recordPuzzle();
+        }
+      allPieces.last()->updatePos(timeElapsed-260);
     }
 
     update();
@@ -91,7 +87,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     {
          if (event->key() == Qt::Key_Space)
          {
-             timeElapsed = 1070;
+             timeElapsed = 1000 ;
          }
          else if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down)
          {
@@ -102,12 +98,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
              if(allPieces.last()->X < 5)
                 allPieces.last()->X += 1;
              allPieces.last()->updatePos(timeElapsed-350);
+             bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
          }
          else if(event->key() == Qt::Key_Left)
          {
              if(allPieces.last()->X > 0)
                 allPieces.last()->X -= 1;
              allPieces.last()->updatePos(timeElapsed-350);
+             bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
          }
          return;
     }
@@ -249,7 +247,6 @@ void MainWindow::on_ok_clicked()
         ui->label_2->setText("At least select 2 bands!");
     }
 }
-
 void MainWindow::on_pppSelect_clicked()
 {
     if(!pppSelected)
@@ -328,6 +325,34 @@ void MainWindow::startGame()
     game->generateDeck();
     addPiece();
     ui->label_2->hide();
+}
+void MainWindow::recordPuzzle()
+{
+    bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
+    allPieces.last()->updatePos(740 - 260 * (7 - bottomY));
+    if(allPieces.last()->dir % 2 == 0)//vertical layout
+    {
+        map[bottomY * 6 + allPieces.last()->X] = allPieces.last()->characterID;
+        bottomY--;
+        map[bottomY * 6 + allPieces.last()->X] = allPieces.last()->characterID;
+    }
+    allPieces.last()->image.show();
+    addPiece();
+    bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
+}
+
+int MainWindow::checkBottom(int* map, int dir, int X)
+{
+
+    if(dir % 2 == 0)//vertical layout
+    {
+        for(int i = 0; i < 7; i++)
+        {
+            if(map[i*6 + X] != 0)
+                return i;
+        }
+    }
+    return 7;
 }
 
 void MainWindow::addPiece()

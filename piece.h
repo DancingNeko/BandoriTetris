@@ -20,9 +20,9 @@ public:
     const Piece& operator = (const Piece& rhs);
     int X = 2;//which column, not pixel
     int Y = 7;
-private:
     int characterID = -1; //-1: blank
     int dir = 0;
+private:
     QPixmap imageMap;
 };
 
