@@ -60,13 +60,16 @@ private:
     bool bandSelected = false;
     bool start = false;//if all settings finished and game starts
     int pieceCount = 0;
+    int* map = NULL;
 
     void startGame();
     titres *game = NULL;
-    QList<Piece> allPieces;//store all the pieces' info.
+    QList<Piece*> allPieces;//store all the pieces' info.
 
     //set piece
     void addPiece();
+
+    QLabel test1;
 
 
 
@@ -79,5 +82,6 @@ private slots:
      void on_ppSelect_clicked();
      void on_rSelect_clicked();
      void on_ok_clicked();
+
 };
 #endif // MAINWINDOW_H

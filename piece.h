@@ -15,12 +15,13 @@ public:
     void rotate();
     void setpiece(QPixmap,int,int,int);
     void clearPiece();
+    void updatePos(int);
     QLabel image;
     const Piece& operator = (const Piece& rhs);
+    int X = 2;//which column, not pixel
+    int Y = 7;
 private:
     int characterID = -1; //-1: blank
-    int X = 0;
-    int Y = 0;
     int dir = 0;
     QPixmap imageMap;
 };

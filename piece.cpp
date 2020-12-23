@@ -7,10 +7,6 @@ Piece::Piece(QPixmap input,int x,int y,int ID)
     imageMap = input;
     image.setPixmap(imageMap);
     move(x,y);
-    X=x;
-    Y=y;
-    image.show();
-    image.raise();
 }
 
 Piece::Piece()
@@ -29,13 +25,13 @@ Piece::Piece(const Piece& copy)
 
 void Piece::move(int x, int y)
 {
-    image.setGeometry(x,y,200,350);
+    image.setGeometry(x,y,350,350);
 }
 
 void Piece::rotate()
 {
     QTransform rotate;
-    rotate.rotate(90);
+    rotate.rotate(dir*90);
     image.setPixmap(imageMap.transformed(rotate));
     if(dir != 3)
         dir++;
@@ -55,6 +51,11 @@ void Piece::setpiece(QPixmap input,int x,int y, int ID)
 void Piece::clearPiece()
 {
     image.hide();
+}
+
+void Piece::updatePos(int yPos)
+{
+    image.setGeometry(700 + 133 * (X - 2), yPos,350,350);
 }
 
 const Piece &Piece::operator =(const Piece &rhs)
