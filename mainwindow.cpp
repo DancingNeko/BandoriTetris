@@ -61,11 +61,6 @@ void MainWindow::onTimeout()
     }
     if(start)
     {
-        if(pieceAdded)//reset time elapsed
-        {
-            timeElapsed = 0;
-            pieceAdded = false;
-        }
         if(timeElapsed + (int)(1 + 0 * pieceCount) >= 1000 - 260 * (7 - bottomY)) //if next frame will be over 1070
         {
             recordPuzzle();
@@ -87,7 +82,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     {
          if (event->key() == Qt::Key_Space)
          {
-             timeElapsed = 1000 ;
+             timeElapsed = 1000 - 260 * (7 - bottomY) - (int)(1 + 0 * pieceCount);
          }
          else if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down)
          {
@@ -97,14 +92,14 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
          {
              if(allPieces.last()->X < 5)
                 allPieces.last()->X += 1;
-             allPieces.last()->updatePos(timeElapsed-350);
+             allPieces.last()->updatePos(timeElapsed-260);
              bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
          }
          else if(event->key() == Qt::Key_Left)
          {
              if(allPieces.last()->X > 0)
                 allPieces.last()->X -= 1;
-             allPieces.last()->updatePos(timeElapsed-350);
+             allPieces.last()->updatePos(timeElapsed-260);
              bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
          }
          return;
@@ -357,6 +352,7 @@ int MainWindow::checkBottom(int* map, int dir, int X)
 
 void MainWindow::addPiece()
 {
+    timeElapsed = 0;
     Piece* temp = new Piece(bg,-1000,-1000,0);
     allPieces.append(temp);
     if(start == false)
@@ -369,6 +365,4 @@ void MainWindow::addPiece()
     allPieces.last()->setpiece(tempImage,700,-300,id);
     allPieces.last()->image.raise();
     allPieces.last()->image.show();
-
-    pieceAdded = true;
 }
