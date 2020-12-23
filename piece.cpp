@@ -30,13 +30,13 @@ void Piece::move(int x, int y)
 
 void Piece::rotate()
 {
-    QTransform rotate;
-    rotate.rotate(dir*90);
-    image.setPixmap(imageMap.transformed(rotate));
     if(dir != 3)
         dir++;
     else
         dir = 0;
+    QTransform rotate;
+    rotate.rotate(dir*90);
+    image.setPixmap(imageMap.transformed(rotate));
 }
 
 void Piece::setpiece(QPixmap input,int x,int y, int ID)
