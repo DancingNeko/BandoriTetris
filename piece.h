@@ -4,17 +4,19 @@
 #include<QPixmap>
 #include<QLabel>
 
-class piece
+class Piece
 {
 public:
-    piece(QPixmap,int,int,int);
-    piece();
+    Piece(QPixmap,int,int,int);
+    Piece();
+    Piece(const Piece&);
     void move(int, int);
     void setImage(QPixmap);
     void rotate();
     void setpiece(QPixmap,int,int,int);
     void clearPiece();
     QLabel image;
+    const Piece& operator = (const Piece& rhs);
 private:
     int characterID = -1; //-1: blank
     int X = 0;

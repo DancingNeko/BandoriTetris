@@ -12,9 +12,6 @@ titres::titres(bool ppp,bool ag,bool hhw,bool pp,bool r)
     hhwSelected = hhw;
     ppSelected = pp;
     rSelected = r;
-    map = new int[48];
-    for(int i = 0; i <48; i++)
-        map[i] = 0;
     initialize();
     generateDeck();
 }
@@ -49,10 +46,9 @@ void titres::initialize()
     characters[24] = QPixmap(":/characterPNG(ps)/ako.png");
     characters[25] = QPixmap(":/characterPNG(ps)/rinko.png");
 
-    allPieces = new piece[48];
 }
 
-QPixmap titres::getPiece(int& ID)
+QPixmap titres::generateImage(int& ID)
 {
     int random = (int)(rand() % (deckSize - 1)) + 1; //-1: marina
     QPixmap result(characters[deck[random]]);

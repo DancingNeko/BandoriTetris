@@ -11,16 +11,15 @@ class titres
 public:
     titres(bool,bool,bool,bool,bool);
 
-    int* map;
-    QPixmap getPiece(int &);
+    QPixmap generateImage(int &);
     void initialize();
     void generateDeck();
 
 private:
     QPixmap* characters;
-    int* deck;
+    int* deck = NULL;
     int deckSize = 0;
-    piece* allPieces;
+    Piece* allPieces;
 
     bool pppSelected = false;
     bool agSelected = false;

@@ -5,6 +5,7 @@
 #include<QPushButton>
 #include<iostream>
 #include<QKeyEvent>
+#include<QList>
 using namespace std;
 
 MainWindow::MainWindow(QWidget *parent)
@@ -12,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(&timer,SIGNAL(timeout()),this,SLOT(runTimerEvent()));
+    connect(&timer,SIGNAL(timeout()),this,SLOT(onTimeout()));
     timer.start(8);
     bg = QPixmap(":/system/bg.png");
     bg1 = QPixmap(":/system/bg1.png");
@@ -43,7 +44,7 @@ MainWindow::~MainWindow()
 }
 
 //system
-void MainWindow::runTimerEvent()
+void MainWindow::onTimeout()
 {
     timeElapsed += (int)(1 + 1 * pieceCount);
     if(!keyPressed)//animate the label
@@ -55,7 +56,7 @@ void MainWindow::runTimerEvent()
     }
     if(start)
     {
-        if(timeElapsed + (int)(10 + 1 * pieceCount) >= 1070) //if next frame will be over 1070
+        if(timeElapsed + (int)(1 + 1 * pieceCount) >= 1070) //if next frame will be over 1070
         {
             allPieces[pieceCount].move(700,720);
             addPiece();
@@ -72,18 +73,23 @@ void MainWindow::runTimerEvent()
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
     if(keyPressed == false)
+    {
         keyPressed = true;
+        ui->label->hide();
+        selectBand();
+    }
     else
     {
          if (event->key() == Qt::Key_Space)
          {
              timeElapsed = 1070;
          }
+         if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down)
+         {
+             allPieces[pieceCount].rotate();
+         }
          return;
     }
-    ui->label->hide();
-    if(!bandSelected && !selectingBand)
-        selectBand();
 }
 void MainWindow::on_escape_clicked()
 {
@@ -297,23 +303,22 @@ void MainWindow::on_rSelect_clicked()
 //game
 void MainWindow::startGame()
 {
-    allPieces = new piece[48];
-    for(int i = 0; i < 48; i++)
-    {
-        allPieces[i].image.setParent(this);
-    }
     game = new titres(pppSelected,agSelected,hhwSelected,ppSelected,rSelected);
+    game->generateDeck();
     addPiece();
 }
 
 void MainWindow::addPiece()
 {
+    allPieces.clear();
+    Piece temp(bg,700,300,0);
+    allPieces.append(temp);
     if(start == false)
-    start = true;
+        start = true;
     else
         pieceCount++;
     int id = -1;
-    QPixmap temp = game->getPiece(id);
-    allPieces[pieceCount].setpiece(temp,700,-300,id);
+    QPixmap tempImage = game->generateImage(id);
+    allPieces[allPieces.size()-1].setpiece(tempImage,700,-300,id);
     pieceAdded = true;
 }

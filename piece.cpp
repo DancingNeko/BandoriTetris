@@ -1,7 +1,7 @@
 #include "piece.h"
 #include<QLabel>
 
-piece::piece(QPixmap input,int x,int y,int ID)
+Piece::Piece(QPixmap input,int x,int y,int ID)
 {
     characterID = ID;
     imageMap = input;
@@ -13,16 +13,26 @@ piece::piece(QPixmap input,int x,int y,int ID)
     image.raise();
 }
 
-piece::piece()
+Piece::Piece()
 {
 }
 
-void piece::move(int x, int y)
+Piece::Piece(const Piece& copy)
+{
+    characterID = copy.characterID; //-1: blank
+    X = copy.X;
+    Y = copy.Y;
+    dir = copy.dir;
+    imageMap = copy.imageMap;
+    image.setPixmap(imageMap);
+}
+
+void Piece::move(int x, int y)
 {
     image.setGeometry(x,y,200,350);
 }
 
-void piece::rotate()
+void Piece::rotate()
 {
     QTransform rotate;
     rotate.rotate(90);
@@ -33,7 +43,7 @@ void piece::rotate()
         dir = 0;
 }
 
-void piece::setpiece(QPixmap input,int x,int y, int ID)
+void Piece::setpiece(QPixmap input,int x,int y, int ID)
 {
     characterID = ID;
     imageMap = input;
@@ -42,7 +52,20 @@ void piece::setpiece(QPixmap input,int x,int y, int ID)
     image.show();
 }
 
-void piece::clearPiece()
+void Piece::clearPiece()
 {
     image.hide();
+}
+
+const Piece &Piece::operator =(const Piece &rhs)
+{
+    if(&rhs == this)
+        return *this;
+    characterID = rhs.characterID; //-1: blank
+    X = rhs.X;
+    Y = rhs.Y;
+    dir = rhs.dir;
+    imageMap = rhs.imageMap;
+    image.setPixmap(imageMap);
+    return *this;
 }

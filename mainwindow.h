@@ -62,8 +62,8 @@ private:
     int pieceCount = 0;
 
     void startGame();
-    titres *game;
-    piece* allPieces;//store all the pieces' info.
+    titres *game = NULL;
+    QList<Piece> allPieces;//store all the pieces' info.
 
     //set piece
     void addPiece();
@@ -71,7 +71,7 @@ private:
 
 
 private slots:
-     void runTimerEvent();
+     void onTimeout();
      void on_escape_clicked();
      void on_pppSelect_clicked();
      void on_agSelect_clicked();
