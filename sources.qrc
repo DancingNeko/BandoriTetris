@@ -1,0 +1,42 @@
+<RCC>
+    <qresource prefix="/">
+        <file>system/bg.png</file>
+        <file>system/bg1.png</file>
+        <file>system/esc.png</file>
+        <file>system/scoreBoard.png</file>
+        <file>logos/ag.png</file>
+        <file>logos/hhw.png</file>
+        <file>logos/pp.png</file>
+        <file>logos/ppp.png</file>
+        <file>logos/r.png</file>
+        <file>system/no.png</file>
+        <file>system/yes.png</file>
+        <file>system/confirm.png</file>
+        <file>characterPNG(ps)/ako.png</file>
+        <file>characterPNG(ps)/arisa.png</file>
+        <file>characterPNG(ps)/aya.png</file>
+        <file>characterPNG(ps)/chisato.png</file>
+        <file>characterPNG(ps)/eve.png</file>
+        <file>characterPNG(ps)/hagumi.png</file>
+        <file>characterPNG(ps)/himari.png</file>
+        <file>characterPNG(ps)/hina.png</file>
+        <file>characterPNG(ps)/kanon.png</file>
+        <file>characterPNG(ps)/kaoru.png</file>
+        <file>characterPNG(ps)/kasumi.png</file>
+        <file>characterPNG(ps)/kokoro.png</file>
+        <file>characterPNG(ps)/marina.png</file>
+        <file>characterPNG(ps)/maya.png</file>
+        <file>characterPNG(ps)/moca.png</file>
+        <file>characterPNG(ps)/otae.png</file>
+        <file>characterPNG(ps)/ran.png</file>
+        <file>characterPNG(ps)/rimi.png</file>
+        <file>characterPNG(ps)/rinko.png</file>
+        <file>characterPNG(ps)/risa.png</file>
+        <file>characterPNG(ps)/saaya.png</file>
+        <file>characterPNG(ps)/sayo.png</file>
+        <file>characterPNG(ps)/tomoe.png</file>
+        <file>characterPNG(ps)/tsugumi.png</file>
+        <file>characterPNG(ps)/yukina.png</file>
+        <file>characterPNG(ps)/misaki.png</file>
+    </qresource>
+</RCC>
