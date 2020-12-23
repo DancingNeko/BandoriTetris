@@ -34,6 +34,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label->setParent(this);
     ui->label->raise();
     ui->label->show();
+    setFocusPolicy(Qt::StrongFocus);
+    ui->escape->setFocusPolicy(Qt::FocusPolicy::NoFocus);
+    map = new int[48];
+    for(int i = 0; i < 48; i++)
+        map[i] = 0;
 
     update();
 }
@@ -58,7 +63,8 @@ void MainWindow::onTimeout()
     {
         if(timeElapsed + (int)(1 + 1 * pieceCount) >= 1070) //if next frame will be over 1070
         {
-            allPieces[pieceCount].move(700,720);
+            allPieces.last()->updatePos(720);
+            allPieces.last()->image.show();
             addPiece();
         }
         if(pieceAdded)//reset time elapsed
@@ -66,8 +72,11 @@ void MainWindow::onTimeout()
             timeElapsed = 0;
             pieceAdded = false;
         }
-      allPieces[pieceCount].move(700,timeElapsed-350);
+      allPieces.last()->updatePos(timeElapsed-350);
+
+      cout<< allPieces.last()->X <<endl;
     }
+
     update();
 }
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -84,9 +93,21 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
          {
              timeElapsed = 1070;
          }
-         if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down)
+         else if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down)
          {
-             allPieces[pieceCount].rotate();
+             allPieces.last()->rotate();
+         }
+         else if(event->key() == Qt::Key_Right)
+         {
+             if(allPieces.last()->X < 5)
+                allPieces.last()->X += 1;
+             allPieces.last()->updatePos(timeElapsed-350);
+         }
+         else if(event->key() == Qt::Key_Left)
+         {
+             if(allPieces.last()->X > 0)
+                allPieces.last()->X -= 1;
+             allPieces.last()->updatePos(timeElapsed-350);
          }
          return;
     }
@@ -211,7 +232,6 @@ void MainWindow::on_ok_clicked()
 
 
         //show game
-        ui->escape->clearFocus();
         trail.setGeometry(400,0,887,1080);
         trail.setPixmap(bg1);
         trail.raise();
@@ -229,6 +249,7 @@ void MainWindow::on_ok_clicked()
         ui->label_2->setText("At least select 2 bands!");
     }
 }
+
 void MainWindow::on_pppSelect_clicked()
 {
     if(!pppSelected)
@@ -306,12 +327,12 @@ void MainWindow::startGame()
     game = new titres(pppSelected,agSelected,hhwSelected,ppSelected,rSelected);
     game->generateDeck();
     addPiece();
+    ui->label_2->hide();
 }
 
 void MainWindow::addPiece()
 {
-    allPieces.clear();
-    Piece temp(bg,700,300,0);
+    Piece* temp = new Piece(bg,-1000,-1000,0);
     allPieces.append(temp);
     if(start == false)
         start = true;
@@ -319,6 +340,10 @@ void MainWindow::addPiece()
         pieceCount++;
     int id = -1;
     QPixmap tempImage = game->generateImage(id);
-    allPieces[allPieces.size()-1].setpiece(tempImage,700,-300,id);
+    allPieces.last()->image.setParent(this);
+    allPieces.last()->setpiece(tempImage,700,-300,id);
+    allPieces.last()->image.raise();
+    allPieces.last()->image.show();
+
     pieceAdded = true;
 }
