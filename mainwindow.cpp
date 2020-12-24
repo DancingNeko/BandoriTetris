@@ -86,7 +86,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     }
     else
     {
-         if (event->key() == Qt::Key_Space)
+         if (event->key() == Qt::Key_Space || event->key() == Qt::Key_Down)
          {
              timeElapsed = 990 - 130 * (7 - bottomY) - (int)(1 + 0 * pieceCount);
          }
@@ -338,7 +338,7 @@ void MainWindow::recordPuzzle()
         map[bottomY * 6 + allPieces.last()->X] = allPieces.last()->characterID;
         bottomY--;
         map[bottomY * 6 + allPieces.last()->X] = allPieces.last()->characterID;
-        bottomY--;
+        allPieces.at(allPieces.size() - 1)->Y = bottomY;
     }
     if(allPieces.last()->dir % 2 == 1)//horizontal layout
     {
@@ -346,13 +346,42 @@ void MainWindow::recordPuzzle()
         allPieces.last()->updatePos(960 - 133 * (7 - bottomY + 1));
         map[bottomY * 6 + allPieces.last()->X] = allPieces.last()->characterID;
         map[bottomY * 6 + allPieces.last()->X + 1] = allPieces.last()->characterID;
-        bottomY--;
+        allPieces.at(allPieces.size() - 1)->Y = bottomY;
+    }
+    cout<<allPieces.at(allPieces.size() - 1)->X<<allPieces.at(allPieces.size() - 1)->Y<<allPieces.at(allPieces.size() - 1)->dir<<endl;
+    if(checkClear())
+    {
+        for(int y = 0; y < 8; y++)
+            for(int x = 0; x < 6; x++)
+            {
+                if(map[x + y * 6] == -1)
+                {
+                    for(int i = 0; i < allPieces.size(); i++)
+                    {
+                        if(allPieces.at(i) -> X == x && allPieces.at(i) -> Y == y)
+                        {
+                            if(allPieces.at(i)->dir%2 == 0)
+                            {
+                                map[x + y * 6] = 0;
+                                map[x + y * 6 + 6] = 0;
+                            }
+                            else
+                            {
+                                map[x + y * 6] = 0;
+                                map[x + y * 6 + 1] = 0;
+                            }
+                            allPieces.at(i)->image.hide();
+                            allPieces.removeAt(i);
+                        }
+                    }
+                }
+            }
     }
     allPieces.last()->image.show();
     addPiece();
-    for(int i = 0; i < 48; i++)
-        cout<<i<<":"<<map[i]<<" ";
-    cout<<endl;
+//  for(int i = 0; i < 48; i++)
+//      cout<<i<<":"<<map[i]<<" ";
+//  cout<<endl;
 }
 
 int MainWindow::checkBottom(int* map, int dir, int X)
@@ -361,7 +390,7 @@ int MainWindow::checkBottom(int* map, int dir, int X)
     {
         for(int i = 0; i <= 7; i++)
         {
-            cout<<i*6 + X<<endl;
+            //cout<<i*6 + X<<endl;
             if(map[i*6 + X] != 0)
                 return (i - 1);
         }
@@ -374,9 +403,91 @@ int MainWindow::checkBottom(int* map, int dir, int X)
                 return i - 1;
         }
     }
-    cout<<endl;
+    //cout<<endl;
     return 7;
 }
+
+bool MainWindow::checkClear()
+{
+    changes = new int[48];
+    for(int i = 0; i < 48; i++)
+    {
+        changes[i] = map[i];
+    }
+    changes = translateToBand(changes);
+    int band = 1;
+    int maxCombo = 0;//how many members connected
+    while(band <= 5)
+    {
+        for(int i = 0; i < 48; i++)
+        {
+            maxCombo = 0;
+            if(changes[i] == band)
+            {
+                searchConnectedBlocks(maxCombo, i, changes, band);
+                if(maxCombo >= 10)
+                {
+                       for(int k = 0; k < 48; k++)
+                       {
+                           if(changes[k] == -1)
+                               map[k] = changes[k];
+                       }
+                       return true;
+                }
+                else
+                {
+                    for (int i = 0; i < 48; i++)
+                        if (changes[i] == -1)
+                            changes[i] = 0;
+                }
+            }
+        }
+        band++;
+    }
+    return false;
+}
+
+int* MainWindow::translateToBand(int* data)
+{
+    for(int i = 0; i < 48; i++)
+    {
+        if(data[i] == 0)
+            continue;
+        int temp = data[i];
+        temp = (temp - 1) / 5 + 1;
+        data[i] = temp;
+    }
+    return data;
+}
+
+void MainWindow::searchConnectedBlocks(int& connectedNum, int pos, int *input, int band)
+{
+    connectedNum++;
+    input[pos] = 0;
+    if(pos % 6 != 5)
+    {
+        if(input[pos+1] == band)
+            searchConnectedBlocks(connectedNum, pos+1, input, band);
+    }
+    if(pos % 6 != 0)
+    {
+        if(input[pos-1] == band)
+            searchConnectedBlocks(connectedNum, pos-1, input, band);
+    }
+    if(pos / 6 != 7)
+    {
+        if(input[pos+6] == band)
+            searchConnectedBlocks(connectedNum, pos+6, input, band);
+    }
+    if(pos / 6 != 0)
+    {
+        if(input[pos-6] == band)
+            searchConnectedBlocks(connectedNum, pos-6, input, band);
+    }
+    input[pos] = -1;
+    return;
+}
+
 
 void MainWindow::addPiece()
 {
