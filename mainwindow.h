@@ -68,6 +68,10 @@ private:
     QList<Piece*> allPieces;//store all the pieces' info.
     void recordPuzzle();//record puzzle when it reached bottom
     int checkBottom(int*, int dir,int X);//check bottomY and update, X: column
+    bool checkClear();//check if any band have more than 5 members connected
+    int* changes = NULL;
+    int* translateToBand(int*);//translate all the data from member ID to band ID
+    void searchConnectedBlocks(int& connectedNum, int pos,int*input, int band);
 
     //set piece
     void addPiece();
