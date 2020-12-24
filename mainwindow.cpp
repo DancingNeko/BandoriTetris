@@ -61,8 +61,14 @@ void MainWindow::onTimeout()
     }
     if(start)
     {
-        if(timeElapsed + (int)(1 + 0 * pieceCount) >= 1000 - 260 * (7 - bottomY)) //if next frame will be over 1070
+        if(timeElapsed + (int)(1 + 0 * pieceCount) >= 990 - 130 * (7 - bottomY) && allPieces.last()->dir % 2 == 0) //if next frame will be over 1070
         {
+            timeElapsed = 0;
+            recordPuzzle();
+        }
+        else if(timeElapsed + (int)(1 + 0 * pieceCount) >= 960 - 133 * (7 - bottomY + 1) && allPieces.last()->dir % 2 == 1)
+        {
+            timeElapsed = 0;
             recordPuzzle();
         }
       allPieces.last()->updatePos(timeElapsed-260);
@@ -82,7 +88,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     {
          if (event->key() == Qt::Key_Space)
          {
-             timeElapsed = 1000 - 260 * (7 - bottomY) - (int)(1 + 0 * pieceCount);
+             timeElapsed = 990 - 130 * (7 - bottomY) - (int)(1 + 0 * pieceCount);
          }
          else if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down)
          {
@@ -324,29 +330,51 @@ void MainWindow::startGame()
 void MainWindow::recordPuzzle()
 {
     bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
-    allPieces.last()->updatePos(740 - 260 * (7 - bottomY));
+    //cout<<bottomY<<endl;
     if(allPieces.last()->dir % 2 == 0)//vertical layout
     {
+        bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
+        allPieces.last()->updatePos(990 - 130 * (7 - bottomY + 2));
         map[bottomY * 6 + allPieces.last()->X] = allPieces.last()->characterID;
         bottomY--;
         map[bottomY * 6 + allPieces.last()->X] = allPieces.last()->characterID;
+        bottomY--;
+    }
+    if(allPieces.last()->dir % 2 == 1)//horizontal layout
+    {
+        bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
+        allPieces.last()->updatePos(960 - 133 * (7 - bottomY + 1));
+        map[bottomY * 6 + allPieces.last()->X] = allPieces.last()->characterID;
+        map[bottomY * 6 + allPieces.last()->X + 1] = allPieces.last()->characterID;
+        bottomY--;
     }
     allPieces.last()->image.show();
     addPiece();
-    bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
+    for(int i = 0; i < 48; i++)
+        cout<<i<<":"<<map[i]<<" ";
+    cout<<endl;
 }
 
 int MainWindow::checkBottom(int* map, int dir, int X)
 {
-
     if(dir % 2 == 0)//vertical layout
     {
-        for(int i = 0; i < 7; i++)
+        for(int i = 0; i <= 7; i++)
         {
+            cout<<i*6 + X<<endl;
             if(map[i*6 + X] != 0)
-                return i;
+                return (i - 1);
         }
     }
+    if(dir % 2 == 1)//horizontal layout
+    {
+        for(int i = 0; i <= 7; i++)
+        {
+            if(map[i*6 + X] != 0 || map[i * 6 + X + 1])
+                return i - 1;
+        }
+    }
+    cout<<endl;
     return 7;
 }
 
