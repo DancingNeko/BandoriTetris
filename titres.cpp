@@ -52,7 +52,7 @@ QPixmap titres::generateImage(int& ID)
 {
     int random = (int)(rand() % (deckSize - 1)) + 1; //-1: marina
     QPixmap result(characters[deck[random]]);
-    ID = random;
+    ID = deck[random];
     return result;
 }
 
