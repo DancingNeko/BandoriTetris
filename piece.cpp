@@ -28,8 +28,10 @@ void Piece::move(int x, int y)
     image.setGeometry(x,y,350,350);
 }
 
-void Piece::rotate()
+void Piece::rotate(int* map)
 {
+    if(map[X + Y*6 +1] != 0 || map[X + (Y+1)*6 +1] != 0 || X == 5)
+        return;
     if(dir != 3)
         dir++;
     else

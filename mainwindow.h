@@ -62,6 +62,8 @@ private:
     int pieceCount = 0;
     int bottomY = 7;
     int* map = NULL;
+    int speed = 1;
+    double increment = 0.05;
 
     void startGame();
     titres *game = NULL;
@@ -69,13 +71,15 @@ private:
     void recordPuzzle();//record puzzle when it reached bottom
     int checkBottom(int dir,int X);//check bottomY and update, X: column
     bool checkClear();//check if any band have more than 5 members connected
-    void checkDrop();
+    bool checkDrop();
     int* changes = NULL;
     int* translateToBand(int*);//translate all the data from member ID to band ID
     void searchConnectedBlocks(int& connectedNum, int pos,int*input, int band);
+    int checkCave(int moveDir);//check if moveable, move if possible, then return bottomY
+    int updatePieceY();
 
     //set piece
-    void addPiece();
+    bool addPiece();
     QLabel count;
 
 

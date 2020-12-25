@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>system/bg.png</file>
         <file>system/bg1.png</file>
         <file>system/esc.png</file>
         <file>system/scoreBoard.png</file>
@@ -38,5 +37,6 @@
         <file>characterPNG(ps)/tsugumi.png</file>
         <file>characterPNG(ps)/yukina.png</file>
         <file>characterPNG(ps)/misaki.png</file>
+        <file>system/bg.png</file>
     </qresource>
 </RCC>
