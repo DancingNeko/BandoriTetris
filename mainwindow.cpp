@@ -45,7 +45,6 @@ MainWindow::MainWindow(QWidget *parent)
     map = new int[48];
     for(int i = 0; i < 48; i++)
         map[i] = 0;
-
     update();
 }
 
@@ -57,7 +56,7 @@ MainWindow::~MainWindow()
 //system
 void MainWindow::onTimeout()
 {
-    timeElapsed += (int)(1 + 0 * pieceCount);
+    timeElapsed += (int)(speed + increment * pieceCount);
     if(!keyPressed)//animate the label
     {
         if((timeElapsed/100)%2 == 0)
@@ -67,17 +66,18 @@ void MainWindow::onTimeout()
     }
     if(start)
     {
-        if(timeElapsed + (int)(1 + 0 * pieceCount) >= 990 - 130 * (7 - bottomY) && allPieces.last()->dir % 2 == 0) //if next frame will be over 1070
+        //allPieces.last()->Y = updatePieceY();
+        allPieces.last()->Y = updatePieceY();
+        //cout<<timeElapsed-266<<" ";
+        if(timeElapsed + (int)(speed + increment * pieceCount) >= (bottomY - 1)*133 - 50 + 266 && allPieces.last()->dir % 2 == 0) //if next frame will be over the bottom
         {
-            timeElapsed = 0;
             recordPuzzle();
         }
-        else if(timeElapsed + (int)(1 + 0 * pieceCount) >= 960 - 133 * (7 - bottomY + 1) && allPieces.last()->dir % 2 == 1)
+        else if(timeElapsed + (int)(speed + increment * pieceCount) >= bottomY*133 - 110 + 266 && allPieces.last()->dir % 2 == 1)
         {
-            timeElapsed = 0;
             recordPuzzle();
         }
-      allPieces.last()->updateY(timeElapsed-260);
+      allPieces.last()->updateY(timeElapsed - 266);
     }
 
     update();
@@ -94,25 +94,21 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
     {
          if (event->key() == Qt::Key_Space || event->key() == Qt::Key_Down)
          {
-             timeElapsed = 990 - 130 * (7 - bottomY) - (int)(1 + 0 * pieceCount);
+             timeElapsed =100000;
          }
          else if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down)
          {
-             allPieces.last()->rotate();
+             allPieces.last()->rotate(map);
+             bottomY = checkBottom(allPieces.last()->dir,allPieces.last()->X);
          }
          else if(event->key() == Qt::Key_Right)
          {
-             if(allPieces.last()->X < 5)
-                allPieces.last()->X += 1;
-             allPieces.last()->updateY(timeElapsed-260);
-             bottomY = checkBottom(allPieces.last()->dir, allPieces.last()->X);
+             bottomY = checkCave(1);
          }
          else if(event->key() == Qt::Key_Left)
          {
-             if(allPieces.last()->X > 0)
-                allPieces.last()->X -= 1;
-             allPieces.last()->updateY(timeElapsed-260);
-             bottomY = checkBottom(allPieces.last()->dir, allPieces.last()->X);
+             bottomY = checkCave(-1);
+             allPieces.last()->updateY(timeElapsed-266);
          }
          return;
     }
@@ -335,30 +331,28 @@ void MainWindow::startGame()
 }
 void MainWindow::recordPuzzle()
 {
-    bottomY = checkBottom(allPieces.last()->dir, allPieces.last()->X);
     //cout<<bottomY<<endl;
     if(allPieces.last()->dir % 2 == 0)//vertical layout
     {
-        bottomY = checkBottom(allPieces.last()->dir, allPieces.last()->X);
-        allPieces.last()->updateY(990 - 130 * (7 - bottomY + 2));
+        allPieces.last()->updateY((bottomY - 1)*133 - 50);
         //cout<<990 - 130 * (7 - bottomY + 2)<<endl;
         map[bottomY * 6 + allPieces.last()->X] = allPieces.last()->characterID;
         bottomY--;
         map[bottomY * 6 + allPieces.last()->X] = allPieces.last()->characterID;
-        allPieces.at(allPieces.size() - 1)->Y = bottomY;
+        allPieces.last()->Y = bottomY;
     }
     if(allPieces.last()->dir % 2 == 1)//horizontal layout
     {
-        bottomY = checkBottom(allPieces.last()->dir, allPieces.last()->X);
-        allPieces.last()->updateY(960 - 133 * (7 - bottomY + 1));
+        allPieces.last()->updateY(bottomY*133 - 110);
         //cout<<960 - 133 * (7 - bottomY + 1)<<endl;
         map[bottomY * 6 + allPieces.last()->X] = allPieces.last()->characterID;
         map[bottomY * 6 + allPieces.last()->X + 1] = allPieces.last()->characterID;
-        allPieces.at(allPieces.size() - 1)->Y = bottomY;
+        allPieces.last()->Y = bottomY;
     }
     //cout<<allPieces.at(allPieces.size() - 1)->X<<allPieces.at(allPieces.size() - 1)->Y<<allPieces.at(allPieces.size() - 1)->dir<<endl;
     if(checkClear())
     {
+        bool dropped = true;
         for(int y = 0; y < 8; y++)
             for(int x = 0; x < 6; x++)
             {
@@ -384,12 +378,17 @@ void MainWindow::recordPuzzle()
                     }
                 }
             }
-        for(int i = 0; i < 48; i++)
-            cout<<i<<":"<<map[i]<<" ";
-        cout<<endl;
-        checkDrop();
+// for(int i = 0; i < 48; i++)
+//     cout<<i<<":"<<map[i]<<" ";
+// cout<<endl;
+        while(dropped)
+            dropped = checkDrop();
     }
-    addPiece();
+    if(!addPiece())
+    {
+        timer.stop();
+        count.setText("X");
+    }
 //  for(int i = 0; i < 48; i++)
 //      cout<<i<<":"<<map[i]<<" ";
 //  cout<<endl;
@@ -408,7 +407,7 @@ int MainWindow::checkBottom(int dir, int X)
     }
     if(dir % 2 == 1)//horizontal layout
     {
-        for(int i = 0; i <= 7; i++)
+        for(int i = allPieces.last()->Y; i <= 7; i++)
         {
             if(map[i*6 + X] != 0 || map[i * 6 + X + 1])
                 return i - 1;
@@ -458,13 +457,14 @@ bool MainWindow::checkClear()
     return false;
 }
 
-void MainWindow::checkDrop()
+bool MainWindow::checkDrop()
 {
+    bool dropped = false;
     for(int i = 0; i < allPieces.count(); i++)
     {
         if(allPieces.at(i)->dir % 2 == 0)
         {
-            cout<<"id:"<<allPieces.at(i)->characterID<<" Y:"<<allPieces.at(i)->Y<<endl;
+            //cout<<"id:"<<allPieces.at(i)->characterID<<" Y:"<<allPieces.at(i)->Y<<endl;
             if(allPieces.at(i)->Y == 6)
                 continue;
             else
@@ -475,17 +475,17 @@ void MainWindow::checkDrop()
                 while(map[veryBottom*6 + allPieces.at(i)->X] == 0 && veryBottom < 8)
                     veryBottom++;
                 veryBottom--;
-                cout<<"bottomY"<<veryBottom<<endl;
+                if(veryBottom != allPieces.at(i)->Y + 1)
+                    dropped = true;
                 map[veryBottom*6 +allPieces.at(i)->X] = allPieces.at(i)->characterID;
                 map[veryBottom*6 + allPieces.at(i)->X - 6] = allPieces.at(i)->characterID;
                 allPieces.at(i)->Y = veryBottom - 1;
-                allPieces.at(i)->updateY(990 - 130 * (7 - veryBottom + 2));
-                cout<<990 - 130 * (7 - veryBottom + 2)<<endl;
+                allPieces.at(i)->updateY((bottomY - 1)*133 - 50 + 266);
             }
         }
         if(allPieces.at(i)->dir % 2 == 1)
         {
-            cout<<"id:"<<allPieces.at(i)->characterID<<" Y:"<<allPieces.at(i)->Y<<endl;
+            //cout<<"id:"<<allPieces.at(i)->characterID<<" Y:"<<allPieces.at(i)->Y<<endl;
             if(allPieces.at(i)->Y == 7)
                 continue;
             else
@@ -493,18 +493,19 @@ void MainWindow::checkDrop()
                 int veryBottom = allPieces.at(i)->Y + 1;
                 map[allPieces.at(i)->Y*6 +allPieces.at(i)->X] = 0;
                 map[allPieces.at(i)->Y*6 + allPieces.at(i)->X + 1] = 0;
-                while(map[veryBottom*6 + allPieces.at(i)->X] == 0 && veryBottom < 8)
+                while(map[veryBottom*6 + allPieces.at(i)->X] == 0 && map[veryBottom*6 + allPieces.at(i)->X + 1] == 0 && veryBottom < 8)
                     veryBottom++;
                 veryBottom--;
-                cout<<"bottomY"<<veryBottom<<endl;
+                if(veryBottom != allPieces.at(i)->Y)
+                    dropped = true;
                 map[veryBottom*6 +allPieces.at(i)->X] = allPieces.at(i)->characterID;
                 map[veryBottom*6 + allPieces.at(i)->X + 1] = allPieces.at(i)->characterID;
                 allPieces.at(i)->Y = veryBottom;
-                allPieces.at(i)->updateY(960 - 133 * (7 - veryBottom + 1));
-                cout<<990 - 130 * (7 - veryBottom + 2)<<endl;
+                allPieces.at(i)->updateY(bottomY*133 - 110 + 266);
             }
         }
     }
+    return dropped;
 }
 
 int* MainWindow::translateToBand(int* data)
@@ -548,9 +549,62 @@ void MainWindow::searchConnectedBlocks(int& connectedNum, int pos, int *input, i
     return;
 }
 
-
-void MainWindow::addPiece()
+int MainWindow::checkCave(int moveDir)
 {
+    if(allPieces.last()->dir % 2 == 0)
+    {
+        int x = allPieces.last()->X;
+        int y = allPieces.last()->Y;
+        if(x+moveDir!=-1 && x+moveDir!=6 && map[x+6*y+moveDir] == 0 && map[x+6+6*y+moveDir] == 0)
+        {
+            allPieces.last()->X += moveDir;
+            x += moveDir;
+            int veryBottom = allPieces.last()->Y + 2;
+            while(map[veryBottom*6 + allPieces.last()->X] == 0 && veryBottom < 8)
+                veryBottom++;
+            veryBottom--;
+            cout<<veryBottom<<endl;
+            return veryBottom;
+        }
+    }
+    if(allPieces.last()->dir % 2 == 1)
+    {
+        int x = allPieces.last()->X;
+        int y = allPieces.last()->Y;
+        if(x+moveDir!=-1 && x+moveDir!=5 && map[x+6*y+1+moveDir] == 0 && map[x+6*y+moveDir] == 0)
+        {
+            allPieces.last()->X += moveDir;
+            x += moveDir;
+            int veryBottom = allPieces.last()->Y + 1;
+            while(map[veryBottom*6 + allPieces.last()->X] == 0 && map[veryBottom*6 + allPieces.last()->X + 1] == 0 && veryBottom < 8)
+                veryBottom++;
+            veryBottom--;
+            cout<<veryBottom;
+            return veryBottom;
+        }
+    }
+    return bottomY;
+}
+
+    int MainWindow::updatePieceY()
+    {
+        if(allPieces.last()->dir % 2 ==0)
+        {
+            int y = (timeElapsed - 266 + 150) / 133;
+            return y;
+        }
+        if(allPieces.last()->dir % 2 ==1)
+        {
+            int y = (timeElapsed - 266 + 210) / 133;
+            return y;
+        }
+    }
+
+
+bool MainWindow::addPiece()
+{
+    if(map[2] != 0 && map[8] != 0)
+        return false;
     timeElapsed = 0;
     Piece* temp = new Piece(bg,-1000,-1000,0);
     allPieces.append(temp);
@@ -566,4 +620,6 @@ void MainWindow::addPiece()
     allPieces.last()->image.show();
     count.setText(QString::number(pieceCount));
     count.show();
+    bottomY = checkBottom(allPieces.last()->dir,allPieces.last()->X);
+    return true;
 }

@@ -12,10 +12,10 @@ public:
     Piece(const Piece&);
     void move(int, int);
     void setImage(QPixmap);
-    void rotate();
+    void rotate(int* map);
     void setpiece(QPixmap,int,int,int);
     void clearPiece();
-    void updateY(int);
+    void updateY(int);//update y pos, at the same time, set image to X column
     QLabel image;
     const Piece& operator = (const Piece& rhs);
     int X = 2;//which column, not pixel
