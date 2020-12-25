@@ -15,7 +15,7 @@ public:
     void rotate();
     void setpiece(QPixmap,int,int,int);
     void clearPiece();
-    void updatePos(int);
+    void updateY(int);
     QLabel image;
     const Piece& operator = (const Piece& rhs);
     int X = 2;//which column, not pixel

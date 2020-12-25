@@ -53,7 +53,7 @@ void Piece::clearPiece()
     image.hide();
 }
 
-void Piece::updatePos(int yPos)
+void Piece::updateY(int yPos)
 {
     image.setGeometry(700 + 133 * (X - 2), yPos,350,350);
 }

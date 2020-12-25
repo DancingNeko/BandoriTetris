@@ -34,6 +34,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label->setParent(this);
     ui->label->raise();
     ui->label->show();
+    count.setGeometry(1500,100,500,100);
+    count.setParent(this);
+    count.setText("0");
+    count.setFont(QFont("Segoe Print"));
+    count.setStyleSheet("Font : 100pt; color : red");
+    count.hide();
     setFocusPolicy(Qt::StrongFocus);
     ui->escape->setFocusPolicy(Qt::FocusPolicy::NoFocus);
     map = new int[48];
@@ -71,7 +77,7 @@ void MainWindow::onTimeout()
             timeElapsed = 0;
             recordPuzzle();
         }
-      allPieces.last()->updatePos(timeElapsed-260);
+      allPieces.last()->updateY(timeElapsed-260);
     }
 
     update();
@@ -98,15 +104,15 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
          {
              if(allPieces.last()->X < 5)
                 allPieces.last()->X += 1;
-             allPieces.last()->updatePos(timeElapsed-260);
-             bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
+             allPieces.last()->updateY(timeElapsed-260);
+             bottomY = checkBottom(allPieces.last()->dir, allPieces.last()->X);
          }
          else if(event->key() == Qt::Key_Left)
          {
              if(allPieces.last()->X > 0)
                 allPieces.last()->X -= 1;
-             allPieces.last()->updatePos(timeElapsed-260);
-             bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
+             allPieces.last()->updateY(timeElapsed-260);
+             bottomY = checkBottom(allPieces.last()->dir, allPieces.last()->X);
          }
          return;
     }
@@ -329,12 +335,13 @@ void MainWindow::startGame()
 }
 void MainWindow::recordPuzzle()
 {
-    bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
+    bottomY = checkBottom(allPieces.last()->dir, allPieces.last()->X);
     //cout<<bottomY<<endl;
     if(allPieces.last()->dir % 2 == 0)//vertical layout
     {
-        bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
-        allPieces.last()->updatePos(990 - 130 * (7 - bottomY + 2));
+        bottomY = checkBottom(allPieces.last()->dir, allPieces.last()->X);
+        allPieces.last()->updateY(990 - 130 * (7 - bottomY + 2));
+        //cout<<990 - 130 * (7 - bottomY + 2)<<endl;
         map[bottomY * 6 + allPieces.last()->X] = allPieces.last()->characterID;
         bottomY--;
         map[bottomY * 6 + allPieces.last()->X] = allPieces.last()->characterID;
@@ -342,13 +349,14 @@ void MainWindow::recordPuzzle()
     }
     if(allPieces.last()->dir % 2 == 1)//horizontal layout
     {
-        bottomY = checkBottom(map, allPieces.last()->dir, allPieces.last()->X);
-        allPieces.last()->updatePos(960 - 133 * (7 - bottomY + 1));
+        bottomY = checkBottom(allPieces.last()->dir, allPieces.last()->X);
+        allPieces.last()->updateY(960 - 133 * (7 - bottomY + 1));
+        //cout<<960 - 133 * (7 - bottomY + 1)<<endl;
         map[bottomY * 6 + allPieces.last()->X] = allPieces.last()->characterID;
         map[bottomY * 6 + allPieces.last()->X + 1] = allPieces.last()->characterID;
         allPieces.at(allPieces.size() - 1)->Y = bottomY;
     }
-    cout<<allPieces.at(allPieces.size() - 1)->X<<allPieces.at(allPieces.size() - 1)->Y<<allPieces.at(allPieces.size() - 1)->dir<<endl;
+    //cout<<allPieces.at(allPieces.size() - 1)->X<<allPieces.at(allPieces.size() - 1)->Y<<allPieces.at(allPieces.size() - 1)->dir<<endl;
     if(checkClear())
     {
         for(int y = 0; y < 8; y++)
@@ -376,15 +384,18 @@ void MainWindow::recordPuzzle()
                     }
                 }
             }
+        for(int i = 0; i < 48; i++)
+            cout<<i<<":"<<map[i]<<" ";
+        cout<<endl;
+        checkDrop();
     }
-    allPieces.last()->image.show();
     addPiece();
 //  for(int i = 0; i < 48; i++)
 //      cout<<i<<":"<<map[i]<<" ";
 //  cout<<endl;
 }
 
-int MainWindow::checkBottom(int* map, int dir, int X)
+int MainWindow::checkBottom(int dir, int X)
 {
     if(dir % 2 == 0)//vertical layout
     {
@@ -447,6 +458,55 @@ bool MainWindow::checkClear()
     return false;
 }
 
+void MainWindow::checkDrop()
+{
+    for(int i = 0; i < allPieces.count(); i++)
+    {
+        if(allPieces.at(i)->dir % 2 == 0)
+        {
+            cout<<"id:"<<allPieces.at(i)->characterID<<" Y:"<<allPieces.at(i)->Y<<endl;
+            if(allPieces.at(i)->Y == 6)
+                continue;
+            else
+            {
+                int veryBottom = allPieces.at(i)->Y + 2;
+                map[allPieces.at(i)->Y*6 +allPieces.at(i)->X] = 0;
+                map[allPieces.at(i)->Y*6 + allPieces.at(i)->X + 6] = 0;
+                while(map[veryBottom*6 + allPieces.at(i)->X] == 0 && veryBottom < 8)
+                    veryBottom++;
+                veryBottom--;
+                cout<<"bottomY"<<veryBottom<<endl;
+                map[veryBottom*6 +allPieces.at(i)->X] = allPieces.at(i)->characterID;
+                map[veryBottom*6 + allPieces.at(i)->X - 6] = allPieces.at(i)->characterID;
+                allPieces.at(i)->Y = veryBottom - 1;
+                allPieces.at(i)->updateY(990 - 130 * (7 - veryBottom + 2));
+                cout<<990 - 130 * (7 - veryBottom + 2)<<endl;
+            }
+        }
+        if(allPieces.at(i)->dir % 2 == 1)
+        {
+            cout<<"id:"<<allPieces.at(i)->characterID<<" Y:"<<allPieces.at(i)->Y<<endl;
+            if(allPieces.at(i)->Y == 7)
+                continue;
+            else
+            {
+                int veryBottom = allPieces.at(i)->Y + 1;
+                map[allPieces.at(i)->Y*6 +allPieces.at(i)->X] = 0;
+                map[allPieces.at(i)->Y*6 + allPieces.at(i)->X + 1] = 0;
+                while(map[veryBottom*6 + allPieces.at(i)->X] == 0 && veryBottom < 8)
+                    veryBottom++;
+                veryBottom--;
+                cout<<"bottomY"<<veryBottom<<endl;
+                map[veryBottom*6 +allPieces.at(i)->X] = allPieces.at(i)->characterID;
+                map[veryBottom*6 + allPieces.at(i)->X + 1] = allPieces.at(i)->characterID;
+                allPieces.at(i)->Y = veryBottom;
+                allPieces.at(i)->updateY(960 - 133 * (7 - veryBottom + 1));
+                cout<<990 - 130 * (7 - veryBottom + 2)<<endl;
+            }
+        }
+    }
+}
+
 int* MainWindow::translateToBand(int* data)
 {
     for(int i = 0; i < 48; i++)
@@ -504,4 +564,6 @@ void MainWindow::addPiece()
     allPieces.last()->setpiece(tempImage,700,-300,id);
     allPieces.last()->image.raise();
     allPieces.last()->image.show();
+    count.setText(QString::number(pieceCount));
+    count.show();
 }
