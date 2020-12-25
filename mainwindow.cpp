@@ -480,7 +480,7 @@ bool MainWindow::checkDrop()
                 map[veryBottom*6 +allPieces.at(i)->X] = allPieces.at(i)->characterID;
                 map[veryBottom*6 + allPieces.at(i)->X - 6] = allPieces.at(i)->characterID;
                 allPieces.at(i)->Y = veryBottom - 1;
-                allPieces.at(i)->updateY((bottomY - 1)*133 - 50 + 266);
+                allPieces.at(i)->updateY((veryBottom - 1)*133 - 50);
             }
         }
         if(allPieces.at(i)->dir % 2 == 1)
@@ -501,7 +501,7 @@ bool MainWindow::checkDrop()
                 map[veryBottom*6 +allPieces.at(i)->X] = allPieces.at(i)->characterID;
                 map[veryBottom*6 + allPieces.at(i)->X + 1] = allPieces.at(i)->characterID;
                 allPieces.at(i)->Y = veryBottom;
-                allPieces.at(i)->updateY(bottomY*133 - 110 + 266);
+                allPieces.at(i)->updateY(veryBottom*133 - 110);
             }
         }
     }
@@ -563,7 +563,6 @@ int MainWindow::checkCave(int moveDir)
             while(map[veryBottom*6 + allPieces.last()->X] == 0 && veryBottom < 8)
                 veryBottom++;
             veryBottom--;
-            cout<<veryBottom<<endl;
             return veryBottom;
         }
     }
@@ -579,7 +578,6 @@ int MainWindow::checkCave(int moveDir)
             while(map[veryBottom*6 + allPieces.last()->X] == 0 && map[veryBottom*6 + allPieces.last()->X + 1] == 0 && veryBottom < 8)
                 veryBottom++;
             veryBottom--;
-            cout<<veryBottom;
             return veryBottom;
         }
     }
