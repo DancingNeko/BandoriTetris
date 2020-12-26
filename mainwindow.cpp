@@ -4,6 +4,7 @@
 #include<QLabel>
 #include<QPushButton>
 #include<iostream>
+#include<windows.h>
 #include<QKeyEvent>
 #include<QList>
 using namespace std;
@@ -14,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     connect(&timer,SIGNAL(timeout()),this,SLOT(onTimeout()));
+    connect(&drop,SIGNAL(timeout()),this,SLOT(onDropStarts()));
     timer.start(8);
     bg = QPixmap(":/system/bg.png");
     bg1 = QPixmap(":/system/bg1.png");
@@ -45,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
     map = new int[48];
     for(int i = 0; i < 48; i++)
         map[i] = 0;
+    drop.setInterval(2);
     update();
 }
 
@@ -382,7 +385,9 @@ void MainWindow::recordPuzzle()
 //     cout<<i<<":"<<map[i]<<" ";
 // cout<<endl;
         while(dropped)
+        {
             dropped = checkDrop();
+        }
     }
     if(!addPiece())
     {
@@ -464,11 +469,11 @@ bool MainWindow::checkDrop()
     {
         if(allPieces.at(i)->dir % 2 == 0)
         {
-            //cout<<"id:"<<allPieces.at(i)->characterID<<" Y:"<<allPieces.at(i)->Y<<endl;
             if(allPieces.at(i)->Y == 6)
                 continue;
             else
             {
+                int y = allPieces.at(i)->Y;
                 int veryBottom = allPieces.at(i)->Y + 2;
                 map[allPieces.at(i)->Y*6 +allPieces.at(i)->X] = 0;
                 map[allPieces.at(i)->Y*6 + allPieces.at(i)->X + 6] = 0;
@@ -480,7 +485,8 @@ bool MainWindow::checkDrop()
                 map[veryBottom*6 +allPieces.at(i)->X] = allPieces.at(i)->characterID;
                 map[veryBottom*6 + allPieces.at(i)->X - 6] = allPieces.at(i)->characterID;
                 allPieces.at(i)->Y = veryBottom - 1;
-                allPieces.at(i)->updateY((veryBottom - 1)*133 - 50);
+                dropIndex.append(new dropInfo(i,allPieces.at(i)->Y,y));
+                //allPieces.at(i)->updateY((veryBottom - 1)*133 - 50);
             }
         }
         if(allPieces.at(i)->dir % 2 == 1)
@@ -490,6 +496,7 @@ bool MainWindow::checkDrop()
                 continue;
             else
             {
+                int y = allPieces.at(i)->Y;
                 int veryBottom = allPieces.at(i)->Y + 1;
                 map[allPieces.at(i)->Y*6 +allPieces.at(i)->X] = 0;
                 map[allPieces.at(i)->Y*6 + allPieces.at(i)->X + 1] = 0;
@@ -501,9 +508,11 @@ bool MainWindow::checkDrop()
                 map[veryBottom*6 +allPieces.at(i)->X] = allPieces.at(i)->characterID;
                 map[veryBottom*6 + allPieces.at(i)->X + 1] = allPieces.at(i)->characterID;
                 allPieces.at(i)->Y = veryBottom;
-                allPieces.at(i)->updateY(veryBottom*133 - 110);
+                //allPieces.at(i)->updateY(veryBottom*133 - 110);
+                dropIndex.append(new dropInfo(i,allPieces.at(i)->Y,y));
             }
         }
+        dropAnimation();
     }
     return dropped;
 }
@@ -595,6 +604,34 @@ int MainWindow::checkCave(int moveDir)
         {
             int y = (timeElapsed - 266 + 210) / 133;
             return y;
+        }
+    }
+
+    void MainWindow::dropAnimation()
+    {
+        dropY = 0;
+        drop.start();
+    }
+
+    void MainWindow::onDropStarts()
+    {
+        if(dropY<133)
+        {
+            dropY++;
+            for(int i = 0; i < dropIndex.size(); i++)
+            {
+                if(allPieces.at(dropIndex.at(i)->pieceIndex)->dir%2 == 0)
+                allPieces.at(dropIndex.at(i)->pieceIndex)->updateY(dropIndex.at(i)->originY*133-50 + (dropIndex.at(i)->pieceBottomY - dropIndex.at(i)->originY) * dropY);
+                else
+                    allPieces.at(dropIndex.at(i)->pieceIndex)->updateY(dropIndex.at(i)->originY*133-110 + (dropIndex.at(i)->pieceBottomY - dropIndex.at(i)->originY) * dropY);
+                update();
+            }
+        }
+        else
+        {
+            while(!dropIndex.isEmpty())
+                dropIndex.removeFirst();
+            drop.stop();
         }
     }
 
