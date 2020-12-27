@@ -593,6 +593,7 @@ int MainWindow::checkCave(int moveDir)
     return bottomY;
 }
 
+
     int MainWindow::updatePieceY()
     {
         if(allPieces.last()->dir % 2 ==0)
@@ -634,7 +635,6 @@ int MainWindow::checkCave(int moveDir)
             drop.stop();
         }
     }
-
 
 bool MainWindow::addPiece()
 {

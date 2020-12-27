@@ -64,7 +64,6 @@ private:
     int* map = NULL;
     int speed = 1;
     double increment = 0.05;
-
     class dropInfo{
     public:
         dropInfo(int i, int bottomY, int originalY) {pieceIndex = i; pieceBottomY = bottomY; originY = originalY;}
