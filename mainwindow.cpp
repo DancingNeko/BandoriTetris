@@ -118,6 +118,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 }
 void MainWindow::on_escape_clicked()
 {
+    timer.stop();
     QApplication::exit(0);
 }
 
@@ -334,7 +335,6 @@ void MainWindow::startGame()
 }
 void MainWindow::recordPuzzle()
 {
-    //cout<<bottomY<<endl;
     if(allPieces.last()->dir % 2 == 0)//vertical layout
     {
         allPieces.last()->updateY((bottomY - 1)*133 - 50);
@@ -397,6 +397,8 @@ void MainWindow::recordPuzzle()
 //  for(int i = 0; i < 48; i++)
 //      cout<<i<<":"<<map[i]<<" ";
 //  cout<<endl;
+    if(!dropIndex.isEmpty())
+        dropAnimation();
 }
 
 int MainWindow::checkBottom(int dir, int X)
@@ -480,12 +482,20 @@ bool MainWindow::checkDrop()
                 while(map[veryBottom*6 + allPieces.at(i)->X] == 0 && veryBottom < 8)
                     veryBottom++;
                 veryBottom--;
+                cout<<allPieces.at(i)->characterID<<":"<<veryBottom<<","<<allPieces.at(i)->Y+1<<endl;
                 if(veryBottom != allPieces.at(i)->Y + 1)
+                {
                     dropped = true;
-                map[veryBottom*6 +allPieces.at(i)->X] = allPieces.at(i)->characterID;
-                map[veryBottom*6 + allPieces.at(i)->X - 6] = allPieces.at(i)->characterID;
-                allPieces.at(i)->Y = veryBottom - 1;
-                dropIndex.append(new dropInfo(i,allPieces.at(i)->Y,y));
+                    map[veryBottom*6 +allPieces.at(i)->X] = allPieces.at(i)->characterID;
+                    map[veryBottom*6 + allPieces.at(i)->X - 6] = allPieces.at(i)->characterID;
+                    allPieces.at(i)->Y = veryBottom - 1;
+                    dropIndex.append(new dropInfo(i,veryBottom - 1,y));
+                }
+                else
+                {
+                    map[allPieces.at(i)->Y*6 +allPieces.at(i)->X] = allPieces.at(i)->characterID;
+                    map[allPieces.at(i)->Y*6 + allPieces.at(i)->X + 6] = allPieces.at(i)->characterID;
+                }
                 //allPieces.at(i)->updateY((veryBottom - 1)*133 - 50);
             }
         }
@@ -504,15 +514,21 @@ bool MainWindow::checkDrop()
                     veryBottom++;
                 veryBottom--;
                 if(veryBottom != allPieces.at(i)->Y)
+            {
                     dropped = true;
                 map[veryBottom*6 +allPieces.at(i)->X] = allPieces.at(i)->characterID;
                 map[veryBottom*6 + allPieces.at(i)->X + 1] = allPieces.at(i)->characterID;
                 allPieces.at(i)->Y = veryBottom;
                 //allPieces.at(i)->updateY(veryBottom*133 - 110);
                 dropIndex.append(new dropInfo(i,allPieces.at(i)->Y,y));
+                }
+                else
+                {
+                    map[allPieces.at(i)->Y*6 +allPieces.at(i)->X] = allPieces.at(i)->characterID;
+                    map[allPieces.at(i)->Y*6 + allPieces.at(i)->X + 1] = allPieces.at(i)->characterID;
+                }
             }
         }
-        dropAnimation();
     }
     return dropped;
 }
@@ -621,10 +637,12 @@ int MainWindow::checkCave(int moveDir)
             dropY++;
             for(int i = 0; i < dropIndex.size(); i++)
             {
+                //if(allPieces.at(dropIndex.at(i)->pieceIndex)->characterID == 24)
+                    //cout<<dropIndex.at(i)->originY<<" ";
                 if(allPieces.at(dropIndex.at(i)->pieceIndex)->dir%2 == 0)
-                allPieces.at(dropIndex.at(i)->pieceIndex)->updateY(dropIndex.at(i)->originY*133-50 + (dropIndex.at(i)->pieceBottomY - dropIndex.at(i)->originY) * dropY);
+                    allPieces.at(dropIndex.at(i)->pieceIndex)->updateY(dropIndex.at(i) -> originY*133-50 + (dropIndex.at(i)->pieceBottomY - dropIndex.at(i)->originY) * dropY);
                 else
-                    allPieces.at(dropIndex.at(i)->pieceIndex)->updateY(dropIndex.at(i)->originY*133-110 + (dropIndex.at(i)->pieceBottomY - dropIndex.at(i)->originY) * dropY);
+                    allPieces.at(dropIndex.at(i)->pieceIndex)->updateY(dropIndex.at(i)-> originY*133-110 + (dropIndex.at(i)->pieceBottomY - dropIndex.at(i)->originY) * dropY);
                 update();
             }
         }
