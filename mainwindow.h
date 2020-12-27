@@ -64,6 +64,13 @@ private:
     int* map = NULL;
     int speed = 1;
     double increment = 0.05;
+    class dropInfo{
+    public:
+        dropInfo(int i, int bottomY, int originalY) {pieceIndex = i; pieceBottomY = bottomY; originY = originalY;}
+        int pieceIndex;
+        int pieceBottomY;
+        int originY;
+    };
 
     void startGame();
     titres *game = NULL;
@@ -77,14 +84,19 @@ private:
     void searchConnectedBlocks(int& connectedNum, int pos,int*input, int band);
     int checkCave(int moveDir);//check if moveable, move if possible, then return bottomY
     int updatePieceY();
+    void dropAnimation();
+    int dropY = 0;
+    QList<dropInfo*> dropIndex;
 
     //set piece
     bool addPiece();
     QLabel count;
+    QTimer drop;
 
 
 
 private slots:
+     void onDropStarts();
      void onTimeout();
      void on_escape_clicked();
      void on_pppSelect_clicked();
